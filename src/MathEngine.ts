@@ -1,7 +1,7 @@
 // ===== АРМ Ножедела — Математическое ядро =====
 
 export type GrindType = 'flat' | 'scandi' | 'hollow' | 'convex' | 'chisel';
-export type BladeShape = 'drop_point' | 'clip_point' | 'tanto' | 'bowie' | 'spear_point' | 'dagger';
+export type BladeShape = 'drop_point' | 'clip_point' | 'tanto' | 'bowie' | 'spear_point' | 'dagger' | 'cleaver' | 'sheepsfoot' | 'custom';
 
 export interface BladeParams {
   spine: number;       // Толщина обуха, мм
@@ -187,6 +187,30 @@ export function getDefaultShapePoints(shape: BladeShape, viewWidth: number, view
     pts.bellyStartX = startX + bladeLen * 0.75;
     pts.bellyCpX = tipX;
     pts.bellyCpY = edgeY - bladeH * 0.25;
+  } else if (shape === 'cleaver') {
+    pts.spineDropX = startX + bladeLen * 0.5;
+    pts.spineCpX = tipX - 20;
+    pts.spineCpY = spineY + bladeH * 0.2;
+    pts.tipY = edgeY - bladeH * 0.1;
+    pts.bellyStartX = startX + bladeLen * 0.8;
+    pts.bellyCpX = tipX - 5;
+    pts.bellyCpY = edgeY;
+  } else if (shape === 'sheepsfoot') {
+    pts.spineDropX = startX + bladeLen * 0.6;
+    pts.spineCpX = tipX;
+    pts.spineCpY = edgeY - bladeH * 0.2;
+    pts.tipY = edgeY;
+    pts.bellyStartX = tipX - 10;
+    pts.bellyCpX = tipX;
+    pts.bellyCpY = edgeY;
+  } else if (shape === 'custom') {
+    pts.spineDropX = startX + bladeLen * 0.5;
+    pts.spineCpX = startX + bladeLen * 0.75;
+    pts.spineCpY = spineY + bladeH * 0.2;
+    pts.tipY = spineY + bladeH * 0.5;
+    pts.bellyStartX = startX + bladeLen * 0.5;
+    pts.bellyCpX = startX + bladeLen * 0.8;
+    pts.bellyCpY = edgeY;
   } else {
     // drop_point
     pts.spineDropX = startX + bladeLen * 0.6;

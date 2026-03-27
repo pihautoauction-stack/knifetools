@@ -24,6 +24,9 @@ const BLADE_SHAPES: { value: BladeShape; label: string }[] = [
   { value: 'bowie', label: 'Bowie (Боуи)' },
   { value: 'spear_point', label: 'Spear Point (Копьевидный)' },
   { value: 'dagger', label: 'Dagger (Кинжал)' },
+  { value: 'cleaver', label: 'Cleaver (Сербский шеф)' },
+  { value: 'sheepsfoot', label: 'Sheepsfoot (Копытце)' },
+  { value: 'custom', label: 'Custom (Произвольный)' },
 ];
 
 const DICTIONARY: Record<string, string> = {
@@ -273,7 +276,7 @@ export default function CalculatorTab() {
           icon="↔"
           value={width}
           min={15}
-          max={80}
+          max={100}
           step={1}
           unit="мм"
           tooltipKey="width"
