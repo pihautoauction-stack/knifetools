@@ -131,16 +131,32 @@ export interface BladeShapePoints {
   ricassoX: number;   // Позиция рикассо (ограничитель)
 }
 
+export interface SideViewLayout {
+  viewWidth: number;
+  viewHeight: number;
+  bladeLen: number;
+  bladeH: number;
+  startX: number;
+  spineY: number;
+  edgeY: number;
+}
+
+export function calcSideViewLayout(bladeLength: number, width: number, viewWidth = 700): SideViewLayout {
+  const padding = 20;
+  const bladeLen = viewWidth - padding * 2;
+  const bladeH = bladeLen * (width / bladeLength);
+  const startX = padding;
+  const spineY = 60; 
+  const edgeY = spineY + bladeH;
+  const viewHeight = Math.max(250, edgeY + 60); // 60px внизу для размерных линий
+  return { viewWidth, viewHeight, bladeLen, bladeH, startX, spineY, edgeY };
+}
+
 /**
  * Возвращает пресеты точек Безье для различных форм клинка
  */
-export function getDefaultShapePoints(shape: BladeShape, viewWidth: number, viewHeight: number): BladeShapePoints {
-  const padding = 20;
-  const bladeLen = viewWidth - padding * 2;
-  const bladeH = viewHeight * 0.45;
-  const startX = padding;
-  const spineY = viewHeight * 0.25;
-  const edgeY = spineY + bladeH;
+export function getDefaultShapePoints(shape: BladeShape, layout: SideViewLayout): BladeShapePoints {
+  const { bladeLen, bladeH, startX, spineY, edgeY } = layout;
 
   const ricassoX = startX + bladeLen * 0.12;
   const straightEdgeW = bladeLen * 0.55;
@@ -230,17 +246,9 @@ export function getDefaultShapePoints(shape: BladeShape, viewWidth: number, view
 export function generateSideViewData(
   params: BladeParams,
   pts: BladeShapePoints,
-  viewWidth: number,
-  viewHeight: number
+  layout: SideViewLayout
 ) {
-  const padding = 20;
-  const bladeLen = viewWidth - padding * 2;
-  const bladeH = viewHeight * 0.45;
-  const startX = padding;
-  const startY = viewHeight * 0.25;
-
-  const spineY = startY;
-  const edgeY = startY + bladeH;
+  const { bladeLen, bladeH, startX, spineY, edgeY } = layout;
 
   // Главный силуэт (Контур)
   const silhouette = `

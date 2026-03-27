@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   calcHalfAngle,
   applyDistalTaper,
@@ -6,6 +6,7 @@ import {
   generateCrossSectionPaths,
   generateSideViewData,
   getDefaultShapePoints,
+  calcSideViewLayout,
 } from '../MathEngine';
 import type { BladeParams, GrindType, BladeShape, BladeShapePoints } from '../MathEngine';
 
@@ -139,19 +140,54 @@ export default function CalculatorTab() {
   const [bladeShape, setBladeShape] = useState<BladeShape>('drop_point');
   const [positionX, setPositionX] = useState(0);
 
-  const sideViewW = 700;
-  const sideViewH = 250;
+  const layout = useMemo(() => calcSideViewLayout(bladeLength, width, 700), [bladeLength, width]);
+  const sideViewW = layout.viewWidth;
+  const sideViewH = layout.viewHeight;
 
   // Интерактивные точки Безье
   const [shapePoints, setShapePoints] = useState<BladeShapePoints>(() =>
-    getDefaultShapePoints('drop_point', sideViewW, sideViewH)
+    getDefaultShapePoints('drop_point', calcSideViewLayout(120, 30, 700))
   );
   const [draggingNode, setDraggingNode] = useState<DragNode | null>(null);
 
-  // Сброс точек при выборе пресета (только если пресет изменился)
+  const prevLayoutRef = useRef(layout);
+  const prevShapeRef = useRef(bladeShape);
+
   useEffect(() => {
-    setShapePoints(getDefaultShapePoints(bladeShape, sideViewW, sideViewH));
-  }, [bladeShape]);
+    const prevLayout = prevLayoutRef.current;
+    const prevShape = prevShapeRef.current;
+
+    const layoutChanged = prevLayout.bladeH !== layout.bladeH || prevLayout.bladeLen !== layout.bladeLen;
+    const shapeChanged = prevShape !== bladeShape;
+
+    if (shapeChanged && bladeShape !== 'custom') {
+      // Выбрали новый пресет
+      setShapePoints(getDefaultShapePoints(bladeShape, layout));
+    } else if (layoutChanged) {
+      if (bladeShape === 'custom') {
+        // Если это произвольная форма, масштабируем (растягиваем) пользовательские точки!
+        const scaleX = layout.bladeLen / prevLayout.bladeLen;
+        const scaleY = layout.bladeH / prevLayout.bladeH;
+        setShapePoints(pts => ({
+          ricassoX: layout.startX + (pts.ricassoX - prevLayout.startX) * scaleX,
+          spineDropX: layout.startX + (pts.spineDropX - prevLayout.startX) * scaleX,
+          spineCpX: layout.startX + (pts.spineCpX - prevLayout.startX) * scaleX,
+          spineCpY: layout.spineY + (pts.spineCpY - prevLayout.spineY) * scaleY,
+          tipX: layout.startX + (pts.tipX - prevLayout.startX) * scaleX,
+          tipY: layout.spineY + (pts.tipY - prevLayout.spineY) * scaleY,
+          bellyCpX: layout.startX + (pts.bellyCpX - prevLayout.startX) * scaleX,
+          bellyCpY: layout.spineY + (pts.bellyCpY - prevLayout.spineY) * scaleY,
+          bellyStartX: layout.startX + (pts.bellyStartX - prevLayout.startX) * scaleX,
+        }));
+      } else {
+        // Пересчет пресета под новые размеры
+        setShapePoints(getDefaultShapePoints(bladeShape, layout));
+      }
+    }
+
+    prevLayoutRef.current = layout;
+    prevShapeRef.current = bladeShape;
+  }, [layout, bladeShape]);
 
   // Применяем дистальное сужение
   const tapered = useMemo(
@@ -191,8 +227,8 @@ export default function CalculatorTab() {
   );
 
   const sideView = useMemo(
-    () => generateSideViewData({ ...params, width, grindHeight, positionX }, shapePoints, sideViewW, sideViewH),
-    [params, width, grindHeight, positionX, shapePoints]
+    () => generateSideViewData({ ...params, width, grindHeight, positionX }, shapePoints, layout),
+    [params, width, grindHeight, positionX, shapePoints, layout]
   );
 
   // Обработчики Drag And Drop
@@ -429,7 +465,8 @@ export default function CalculatorTab() {
           </div>
           <svg
             viewBox={`0 0 ${sideViewW} ${sideViewH}`}
-            className="w-full aspect-[2.8/1] lg:h-[250px] svg-canvas cursor-crosshair pb-5 touch-none"
+            className="w-full lg:h-[250px] svg-canvas cursor-crosshair pb-5 touch-none"
+            style={{ aspectRatio: `${sideViewW} / ${sideViewH}` }}
             preserveAspectRatio="xMidYMid meet"
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
@@ -437,7 +474,7 @@ export default function CalculatorTab() {
           >
             <SvgGrid width={sideViewW} height={sideViewH} step={25} />
 
-            {/* Хвостовик */}
+            {/* Якорь нулевой высоты обуха для отрисовки Grind Line сверху */}
             <path
               d={sideView.tang}
               stroke="var(--color-cad-text-dim)"
