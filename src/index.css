@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cad-bg: #0d1117;
+  --color-cad-surface: #161b22;
+  --color-cad-surface-2: #1c2333;
+  --color-cad-border: #30363d;
+  --color-cad-border-light: #484f58;
+  --color-cad-text: #e6edf3;
+  --color-cad-text-dim: #8b949e;
+  --color-cad-accent: #58a6ff;
+  --color-cad-accent-2: #3fb950;
+  --color-cad-orange: #f0883e;
+  --color-cad-red: #f85149;
+  --color-cad-yellow: #d29922;
+  --color-cad-cyan: #39d2c0;
+  --color-cad-grid: #21262d;
+
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-sans);
+    background-color: var(--color-cad-bg);
+    color: var(--color-cad-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Кастомные стили для ползунков */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    height: 6px;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    background: var(--color-cad-border);
+    height: 6px;
+    border-radius: 3px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -5px;
+    background-color: var(--color-cad-accent);
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--color-cad-bg);
+    box-shadow: 0 0 6px rgba(88, 166, 255, 0.4);
+    transition: box-shadow 0.15s ease;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 12px rgba(88, 166, 255, 0.7);
+  }
+
+  input[type="range"]::-moz-range-track {
+    background: var(--color-cad-border);
+    height: 6px;
+    border-radius: 3px;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    background-color: var(--color-cad-accent);
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--color-cad-bg);
+    box-shadow: 0 0 6px rgba(88, 166, 255, 0.4);
+  }
+
+  /* Стили для number-input */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Скроллбар */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-cad-bg);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-cad-border);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-cad-border-light);
+  }
+}
+
+/* SVG сетка-паттерн */
+.svg-canvas {
+  background-color: var(--color-cad-surface);
+  border: 1px solid var(--color-cad-border);
+  border-radius: 8px;
+}
+
+/* Анимация пульсации маркера */
+@keyframes pulse-marker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.marker-pulse {
+  animation: pulse-marker 1.5s ease-in-out infinite;
+}
+
+/* Анимация плавного появления */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fade-in 0.3s ease-out;
+}
